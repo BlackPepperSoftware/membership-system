@@ -21,7 +21,7 @@ permissionData
 	.forEach(obj => {
 		new Permissions( {
 			name: obj.name,
-			slug: config.permission[obj.slug]
+			slug: obj.slug,
 		} ).save( function( err ) {
 			if ( ! err ) {
 				console.log( `created ${obj.name} permission` );
