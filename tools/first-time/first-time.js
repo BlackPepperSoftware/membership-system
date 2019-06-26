@@ -4,53 +4,31 @@ var config = require( __root + '/config/config.json' ),
 	db = require( __root + '/src/js/database' ).connect( config.mongo ),
 	Permissions = db.Permissions;
 
-// Member
-new Permissions( {
-	name: 'Member',
-	slug: config.permission.member
-} ).save( function( err ) {
-	if ( ! err ) {
-		console.log( 'created member permission' );
-	} else {
-		console.log( err );
-	}
-} );
+const permissionData = [
+	{ name: 'Member', slug: 'member' },
+	{ name: 'Admin', slug: 'admin' },
+	{ name: 'Super Admin', slug: 'superadmin' },
+	{ name: 'Access', slug: 'access' },
+	{ name: 'Volunteer', slug: 'volunteer' },
+	{ name: 'Investor', slug: 'investor' },
+	{ name: 'Subscriber (Small)', slug: 'smallSubscriber' },
+	{ name: 'Subscriber (Medium)', slug: 'mediumSubscriber' },
+	{ name: 'Subscriber (Large)', slug: 'largeSubscriber' },
+];
 
-// Admin
-new Permissions( {
-	name: 'Admin',
-	slug: config.permission.admin
-} ).save( function( err ) {
-	if ( ! err ) {
-		console.log( 'created admin permission' );
-	} else {
-		console.log( err );
-	}
-} );
-
-// Super Admin
-new Permissions( {
-	name: 'Super Admin',
-	slug: config.permission.superadmin
-} ).save( function( err ) {
-	if ( ! err ) {
-		console.log( 'created super admin permission' );
-	} else {
-		console.log( err );
-	}
-} );
-
-// Access
-new Permissions( {
-	name: 'Access',
-	slug: config.permission.access
-} ).save( function( err ) {
-	if ( ! err ) {
-		console.log( 'created access permission' );
-	} else {
-		console.log( err );
-	}
-} );
+permissionData
+	.forEach(obj => {
+		new Permissions( {
+			name: obj.name,
+			slug: config.permission[obj.slug]
+		} ).save( function( err ) {
+			if ( ! err ) {
+				console.log( `created ${obj.name} permission` );
+			} else {
+				console.log( err );
+			}
+		} );
+	});
 
 setTimeout( function () {
 	db.mongoose.disconnect();
