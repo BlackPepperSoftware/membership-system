@@ -155,8 +155,8 @@ app.post( '/create', auth.isSuperAdmin, function( req, res ) {
 		});
 } );
 
-app.get( '/:slug/edit', auth.isSuperAdmin, function( req, res ) {
-	Boxes.findOne( { slug: req.params.slug }).exec ( function( err, box ) {
+app.get( '/:id/edit', auth.isSuperAdmin, function( req, res ) {
+	Boxes.findById(req.params.id).exec ( function( err, box ) {
 		if ( err ) {
 			req.log.debug( {
 				app: 'settings/boxes',
@@ -194,7 +194,7 @@ app.get( '/:slug/edit', auth.isSuperAdmin, function( req, res ) {
 	} );
 } );
 
-app.post( '/:slug/edit', auth.isSuperAdmin, function( req, res ) {
+app.post( '/:id/edit', auth.isSuperAdmin, function( req, res ) {
 	if ( ! req.body.name || req.body.name.trim() === '' ) {
 		req.log.debug( {
 			app: 'settings/boxes',
@@ -207,27 +207,12 @@ app.post( '/:slug/edit', auth.isSuperAdmin, function( req, res ) {
 		return;
 	}
 
-	if ( ! req.body.slug || req.body.slug.trim() === '' ) {
-		req.log.debug( {
-			app: 'settings/boxes',
-			action: 'edit',
-			error: 'Slug not provided',
-			body: req.body
-		} );
-		req.flash( 'danger', 'item-slug-required' );
-		res.redirect( app.parent.mountpath + app.mountpath );
-		return;
-	}
-
 	var box = {
 		name: req.body.name,
-		slug: req.body.slug,
-		description: req.body.description,
-		guide: req.body.guide,
 		defaultState: req.body.defaultState
 	};
 
-	Boxes.update( { slug: req.params.slug }, box, function( status ) {
+	Boxes.update( { id: req.params.id }, box, function( status ) {
 		req.log.debug( {
 			app: 'settings/boxes',
 			action: 'edit',

@@ -15,16 +15,12 @@ block contents
 				thead
 					tr
 						th Name
-						th Slug
-						th Description
 						th Edit
 				tbody
 					each box, p in boxes
 						tr
 							td #{ box.name }
-							td #{ box.slug }
-							td #{ box.description }
-							td: a( href="/settings/boxes/" + box.slug + "/edit" )
+							td: a( href="/settings/boxes/" + box.id + "/edit" )
 								span.glyphicon.glyphicon-pencil
 	else
 		hr
