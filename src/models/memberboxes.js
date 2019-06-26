@@ -23,14 +23,6 @@ module.exports = {
 			ref: 'States',
 			required: true
 		},
-		// actions: [
-		// 	{
-		// 		type: ObjectId,
-		// 		ref: 'Actions',
-		// 		required: true,
-		// 		unique: true
-		// 	}
-		// ],
 	} )
 };
 

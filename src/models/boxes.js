@@ -17,14 +17,6 @@ module.exports = {
 			large: String,
 			icon: String
 		},
-		actions: [
-			{
-				type: ObjectId,
-				ref: 'Actions',
-				required: true,
-				unique: true
-			}
-		],
 		states: [
 			{
 				type: ObjectId,
