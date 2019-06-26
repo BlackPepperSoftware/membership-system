@@ -8,7 +8,6 @@ var	express = require( 'express' ),
 
 var db = require( __js + '/database' ),
 	Boxes = db.Boxes,
-	MemberBoxes = db.MemberBoxes,
 	Members = db.Members,
 	States = db.States,
 	Permissions = db.Permissions;
@@ -154,7 +153,6 @@ app.post( '/:id/edit', auth.isSuperAdmin, function( req, res ) {
 
 	var box = {
 		name: req.body.name,
-		defaultState: req.body.defaultState
 	};
 
 	Boxes.update( { id: req.params.id }, box, function( status ) {
@@ -176,10 +174,7 @@ app.post( '/:id/edit', auth.isSuperAdmin, function( req, res ) {
  */
 function doCreateBox(name) {
 	return newBox(name)
-		.then(box => saveBox(box)
-			.then(() => newMemberBoxes(box))
-		)
-		.then(saveMemberBoxes);
+		.then(saveBox);
 }
 
 /**
@@ -188,11 +183,13 @@ function doCreateBox(name) {
  * @returns {Promise<object>}
  */
 function newBox(name) {
-	return States.findOne({slug: 'ready'})
-		.then(initialState => ({
-			name: name,
-			defaultState: initialState._id
-		}));
+	return getReadyState()
+		.then(state => newMemberBoxes(state._id)
+			.then(memberBoxes => ({
+				name: name,
+				memberBoxes: memberBoxes,
+			}))
+		);
 }
 
 /**
@@ -206,10 +203,18 @@ function saveBox(box) {
 
 /**
  *
- * @param {object} box
+ * @returns {Promise<object>}
+ */
+function getReadyState() {
+	return States.findOne({slug: 'ready'});
+}
+
+/**
+ *
+ * @param {string} initialStateId
  * @returns {Promise<object[]>}
  */
-function newMemberBoxes(box) {
+function newMemberBoxes(initialStateId) {
 	return Members.find()
 		.then(members => Promise.all(
 			members
@@ -218,7 +223,7 @@ function newMemberBoxes(box) {
 						if (subscriberPermission) {
 							return {
 								member: member,
-								state: box.defaultState,
+								state: initialStateId,
 								size: subscriberPermission
 							};
 						}
@@ -227,15 +232,6 @@ function newMemberBoxes(box) {
 			)
 		)
 		.then(results => results.filter(r => !!r));
-}
-
-/**
- *
- * @param {object[]} memberBoxes
- * @returns {Promise}
- */
-function saveMemberBoxes(memberBoxes) {
-	return Promise.all(memberBoxes.map(mb => new MemberBoxes(mb).save()));
 }
 
 /**

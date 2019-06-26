@@ -13,22 +13,24 @@ module.exports = {
 			type: String,
 			required: true
 		},
-		image: {
-			large: String,
-			icon: String
-		},
-		states: [
+		memberBoxes: [
 			{
-				type: ObjectId,
-				ref: 'States',
-				required: true
+				member: {
+					type: ObjectId,
+					ref: 'Members',
+					required: true
+				},
+				size: {
+					type: String,
+					required: true
+				},
+				state: {
+					type: ObjectId,
+					ref: 'States',
+					required: true
+				},
 			}
 		],
-		defaultState: {
-			type: ObjectId,
-			ref: 'States',
-			required: true
-		}
 	} )
 };
 
