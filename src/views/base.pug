@@ -21,7 +21,9 @@ html
 	body( class=( dev ? 'dev' : '' ) )
 		block body
 			.container
-				a( href="/" ).logo
+				a( href="/" ) 
+					img( src="imgs/canalside-header.jpg" width="100%")
+					p
 				block navbar
 					include partials/navbar.pug
 				block breadcrumb
