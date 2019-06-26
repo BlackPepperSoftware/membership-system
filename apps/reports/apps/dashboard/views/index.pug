@@ -1,0 +1,10 @@
+extends /src/views/base.pug
+
+block prepend title
+	- title = app.title
+	- heading = title
+	- activeApp = 'reports'
+
+block contents
+	.panel.panel-default
+		.panel-body This dashboard shows how many subscriptions are active for each size box.
