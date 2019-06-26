@@ -10,7 +10,8 @@ var db = require( __js + '/database' ),
 	Boxes = db.Boxes,
 	MemberBoxes = db.MemberBoxes,
 	Members = db.Members,
-	States = db.States
+	States = db.States,
+	Permissions = db.Permissions;
 
 var auth = require( __js + '/authentication' );
 
@@ -100,15 +101,27 @@ app.post( '/create', auth.isSuperAdmin, function( req, res ) {
 		})
 		.then(() => Members.find())
 		.then(members => {
-			return members
-				.filter(member => member.permissions.map(permission => permission.slug).indexOf('Subscriber') > -1)
+			const subscriberPermissionForMember = (member) =>
+				Promise
+					.all(member.permissions.map(p => Permissions.findById(p.permission)))
+					.then(permissions => permissions.map(permission => permission.slug).find(slug => slug.indexOf('Subscriber') > -1));
+
+			const memberBoxPromises = members
 				.map(member => {
-					return {
-						member: member,
-						state: box.defaultState,
-						size: member.permissions.map(permission => permission.slug).find(slug => slug.indexOf('Subscriber') > -1)
-					};
+					return subscriberPermissionForMember(member)
+						.then(subscriberPermission => {
+							if (subscriberPermission) {
+								return {
+									member: member,
+									state: box.defaultState,
+									size: subscriberPermission
+								};
+							}
+						})
 				});
+
+			return Promise.all(memberBoxPromises)
+				.then(results => results.filter(r => !!r));
 		})
 		.then(memberBoxes => Promise.all(memberBoxes.map(mb => new MemberBoxes( mb ).save())))
 		.catch(err => {
