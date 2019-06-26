@@ -1,0 +1,15 @@
+form( method="post" ).form-horizontal
+	+csrf
+	+input( 'text', 'Name', 'name', { value: ( box ? box.name : '' ), required: true, right: 4 } )
+	.form-group
+		label( for="defaultState ").col-md-2.control-label Default State
+		.col-md-4
+			select( name="defaultState", required )#startingState.form-control
+				option( disabled selected value='' ) –
+				each state, s in states
+					option(
+						selected=( box && box.defaultState != undefined && box.defaultState.toString() == state._id),
+						value=state._id
+					) #{ state.text }
+			span.help-block The state which a thing must be in in order for the action to be possible
+	+form_button( formAction, 'primary' )

@@ -1,0 +1,8 @@
+{
+	"title": "Boxes",
+	"path": "boxes",
+	"permissions": [
+		"superadmin"
+	],
+	"priority": 1
+}

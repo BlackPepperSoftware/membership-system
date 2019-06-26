@@ -1,0 +1,31 @@
+extends /src/views/base.pug
+
+block prepend title
+	- title = app.title
+	- heading = title
+	- activeApp = 'boxes'
+
+block contents
+	p: a( href="/settings/boxes/create" ).btn.btn-default
+		span.glyphicon.glyphicon-plus
+		|  Create Boxes
+	if boxes.length > 0
+		.table-responsive
+			table.table.table-striped.table-condensed
+				thead
+					tr
+						th Name
+						th Slug
+						th Description
+						th Edit
+				tbody
+					each box, p in boxes
+						tr
+							td #{ box.name }
+							td #{ box.slug }
+							td #{ box.description }
+							td: a( href="/settings/boxes/" + box.slug + "/edit" )
+								span.glyphicon.glyphicon-pencil
+	else
+		hr
+		+messageBlock( 'info', 'There are no boxes to display.' )
