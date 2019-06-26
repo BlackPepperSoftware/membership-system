@@ -2,7 +2,8 @@ var __root = __dirname + '/../..';
 
 var config = require( __root + '/config/config.json' ),
 	db = require( __root + '/src/js/database' ).connect( config.mongo ),
-	Permissions = db.Permissions;
+	Permissions = db.Permissions,
+	States = db.States;
 
 const permissionData = [
 	{ name: 'Member', slug: 'member' },
@@ -24,6 +25,28 @@ permissionData
 		} ).save( function( err ) {
 			if ( ! err ) {
 				console.log( `created ${obj.name} permission` );
+			} else {
+				console.log( err );
+			}
+		} );
+	});
+
+const stateData = [
+	{ slug: 'ready', text: 'Ready', colour: 'Grey', pastTense: 'was ready', presentTense: 'is ready' },
+	{ slug: 'collected', text: 'Collected', colour: 'Green', pastTense: 'was collected', presentTense: 'is being collected' },
+];
+
+stateData
+	.forEach(obj => {
+		new States( {
+			slug: obj.slug,
+			text: obj.text,
+			colour: obj.colour,
+			pastTense: obj.pastTense,
+			presentTense: obj.presentTense,
+		} ).save( function( err ) {
+			if ( ! err ) {
+				console.log( `created ${obj.text} state` );
 			} else {
 				console.log( err );
 			}
