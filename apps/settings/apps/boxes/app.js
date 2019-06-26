@@ -76,75 +76,77 @@ app.post( '/create', auth.isSuperAdmin, function( req, res ) {
 		return;
 	}
 
-	var box = {
-		name: req.body.name,
-		defaultState: req.body.defaultState
-	};
-
 	const failedErr = 'create failed';
 
-	new Boxes( box )
-		.save()
-		.catch(err => {
-			if ( err ) {
-				req.log.error( {
-					app: 'settings/boxes',
-					action: 'create',
-					error: 'Error creating box:' + err,
-					body: req.body
-				} );
-				req.flash( 'danger', 'item-not-created' );
-				res.redirect( app.parent.mountpath + app.mountpath + '/create');
-			}
+	States.findOne({slug: 'ready'})
+		.then(initialState => {
+			const box = {
+				name: req.body.name,
+				defaultState: initialState._id
+			};
 
-			throw new Error(failedErr);
-		})
-		.then(() => Members.find())
-		.then(members => {
-			const subscriberPermissionForMember = (member) =>
-				Promise
-					.all(member.permissions.map(p => Permissions.findById(p.permission)))
-					.then(permissions => permissions.map(permission => permission.slug).find(slug => slug.indexOf('Subscriber') > -1));
+			return new Boxes(box).save()
+				.catch(err => {
+					if ( err ) {
+						req.log.error( {
+							app: 'settings/boxes',
+							action: 'create',
+							error: 'Error creating box:' + err,
+							body: req.body
+						} );
+						req.flash( 'danger', 'item-not-created' );
+						res.redirect( app.parent.mountpath + app.mountpath + '/create');
+					}
 
-			const memberBoxPromises = members
-				.map(member => {
-					return subscriberPermissionForMember(member)
-						.then(subscriberPermission => {
-							if (subscriberPermission) {
-								return {
-									member: member,
-									state: box.defaultState,
-									size: subscriberPermission
-								};
-							}
-						})
-				});
+					throw new Error(failedErr);
+				})
+				.then(() => Members.find())
+				.then(members => {
+					const subscriberPermissionForMember = (member) =>
+						Promise
+							.all(member.permissions.map(p => Permissions.findById(p.permission)))
+							.then(permissions => permissions.map(permission => permission.slug).find(slug => slug.indexOf('Subscriber') > -1));
 
-			return Promise.all(memberBoxPromises)
-				.then(results => results.filter(r => !!r));
-		})
-		.then(memberBoxes => Promise.all(memberBoxes.map(mb => new MemberBoxes( mb ).save())))
-		.catch(err => {
-			req.log.error( {
-				app: 'settings/boxes',
-				action: 'create',
-				error: 'Error creating box:' + err,
-				body: req.body
-			} );
-			req.flash( 'danger', 'item-not-created' );
-			res.redirect( app.parent.mountpath + app.mountpath + '/create');
+					const memberBoxPromises = members
+						.map(member => {
+							return subscriberPermissionForMember(member)
+								.then(subscriberPermission => {
+									if (subscriberPermission) {
+										return {
+											member: member,
+											state: box.defaultState,
+											size: subscriberPermission
+										};
+									}
+								})
+						});
 
-			throw new Error(failedErr)
-		})
-		.then(() => {
-			req.log.debug( {
-				app: 'settings/boxes',
-				action: 'create',
-				error: 'Box created',
-				body: req.body
-			} );
-			req.flash( 'success', 'item-created' );
-			res.redirect( app.parent.mountpath + app.mountpath );
+					return Promise.all(memberBoxPromises)
+						.then(results => results.filter(r => !!r));
+				})
+				.then(memberBoxes => Promise.all(memberBoxes.map(mb => new MemberBoxes( mb ).save())))
+				.catch(err => {
+					req.log.error( {
+						app: 'settings/boxes',
+						action: 'create',
+						error: 'Error creating box:' + err,
+						body: req.body
+					} );
+					req.flash( 'danger', 'item-not-created' );
+					res.redirect( app.parent.mountpath + app.mountpath + '/create');
+
+					throw new Error(failedErr)
+				})
+				.then(() => {
+					req.log.debug( {
+						app: 'settings/boxes',
+						action: 'create',
+						error: 'Box created',
+						body: req.body
+					} );
+					req.flash( 'success', 'item-created' );
+					res.redirect( app.parent.mountpath + app.mountpath );
+				})
 		})
 		.catch(err => {
 			if (err.message === failedErr) {
