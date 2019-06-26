@@ -76,84 +76,27 @@ app.post( '/create', auth.isSuperAdmin, function( req, res ) {
 		return;
 	}
 
-	const failedErr = 'create failed';
-
-	States.findOne({slug: 'ready'})
-		.then(initialState => {
-			const box = {
-				name: req.body.name,
-				defaultState: initialState._id
-			};
-
-			return new Boxes(box).save()
-				.catch(err => {
-					if ( err ) {
-						req.log.error( {
-							app: 'settings/boxes',
-							action: 'create',
-							error: 'Error creating box:' + err,
-							body: req.body
-						} );
-						req.flash( 'danger', 'item-not-created' );
-						res.redirect( app.parent.mountpath + app.mountpath + '/create');
-					}
-
-					throw new Error(failedErr);
-				})
-				.then(() => Members.find())
-				.then(members => {
-					const subscriberPermissionForMember = (member) =>
-						Promise
-							.all(member.permissions.map(p => Permissions.findById(p.permission)))
-							.then(permissions => permissions.map(permission => permission.slug).find(slug => slug.indexOf('Subscriber') > -1));
-
-					const memberBoxPromises = members
-						.map(member => {
-							return subscriberPermissionForMember(member)
-								.then(subscriberPermission => {
-									if (subscriberPermission) {
-										return {
-											member: member,
-											state: box.defaultState,
-											size: subscriberPermission
-										};
-									}
-								})
-						});
-
-					return Promise.all(memberBoxPromises)
-						.then(results => results.filter(r => !!r));
-				})
-				.then(memberBoxes => Promise.all(memberBoxes.map(mb => new MemberBoxes( mb ).save())))
-				.catch(err => {
-					req.log.error( {
-						app: 'settings/boxes',
-						action: 'create',
-						error: 'Error creating box:' + err,
-						body: req.body
-					} );
-					req.flash( 'danger', 'item-not-created' );
-					res.redirect( app.parent.mountpath + app.mountpath + '/create');
-
-					throw new Error(failedErr)
-				})
-				.then(() => {
-					req.log.debug( {
-						app: 'settings/boxes',
-						action: 'create',
-						error: 'Box created',
-						body: req.body
-					} );
-					req.flash( 'success', 'item-created' );
-					res.redirect( app.parent.mountpath + app.mountpath );
-				})
+	return doCreateBox(req.body.name)
+		.then(() => {
+			req.log.debug({
+				app: 'settings/boxes',
+				action: 'create',
+				error: 'Box created',
+				body: req.body
+			});
+			req.flash('success', 'item-created');
+			res.redirect(app.parent.mountpath + app.mountpath);
 		})
 		.catch(err => {
-			if (err.message === failedErr) {
-				return;
-			}
-
-			throw err;
+			console.error(err);
+			req.log.error({
+				app: 'settings/boxes',
+				action: 'create',
+				error: 'Error creating box:' + err,
+				body: req.body
+			});
+			req.flash('danger', 'item-not-created');
+			res.redirect(app.parent.mountpath + app.mountpath + '/create');
 		});
 } );
 
@@ -225,6 +168,88 @@ app.post( '/:id/edit', auth.isSuperAdmin, function( req, res ) {
 		res.redirect( app.parent.mountpath + app.mountpath );
 	} );
 } );
+
+/**
+ *
+ * @param {string} name
+ * @returns {Promise}
+ */
+function doCreateBox(name) {
+	return newBox(name)
+		.then(box => saveBox(box)
+			.then(() => newMemberBoxes(box))
+		)
+		.then(saveMemberBoxes);
+}
+
+/**
+ *
+ * @param {string} name
+ * @returns {Promise<object>}
+ */
+function newBox(name) {
+	return States.findOne({slug: 'ready'})
+		.then(initialState => ({
+			name: name,
+			defaultState: initialState._id
+		}));
+}
+
+/**
+ *
+ * @param {object} box
+ * @returns {Promise}
+ */
+function saveBox(box) {
+	return new Boxes(box).save();
+}
+
+/**
+ *
+ * @param {object} box
+ * @returns {Promise<object[]>}
+ */
+function newMemberBoxes(box) {
+	return Members.find()
+		.then(members => Promise.all(
+			members
+				.map(member => getMemberSubscriberPermission(member)
+					.then(subscriberPermission => {
+						if (subscriberPermission) {
+							return {
+								member: member,
+								state: box.defaultState,
+								size: subscriberPermission
+							};
+						}
+					})
+				)
+			)
+		)
+		.then(results => results.filter(r => !!r));
+}
+
+/**
+ *
+ * @param {object[]} memberBoxes
+ * @returns {Promise}
+ */
+function saveMemberBoxes(memberBoxes) {
+	return Promise.all(memberBoxes.map(mb => new MemberBoxes(mb).save()));
+}
+
+/**
+ *
+ * @param {object} member
+ * @returns {Promise<string|undefined>}
+ */
+function getMemberSubscriberPermission(member) {
+	return Promise.all(member.permissions.map(p => Permissions.findById(p.permission)))
+		.then(permissions => permissions
+			.map(permission => permission.slug)
+			.find(slug => slug.indexOf('Subscriber') > -1)
+		);
+}
 
 module.exports = function( config ) {
 	app_config = config;
