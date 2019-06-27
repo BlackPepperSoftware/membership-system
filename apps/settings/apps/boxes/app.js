@@ -215,7 +215,6 @@ function newMemberBoxes(box) {
 				.map(member => getSubscriptionSize(member)
 					.then(size => {
 						if (size) {
-							console.log(box);
 							return {
 								box: box._id,
 								member: member,
