@@ -41,15 +41,15 @@ app.get( '/', auth.isSuperAdmin, function( req, res ) {
 					return Promise.all(
 						boxes
 							.map(box => {
-								return MemberBoxes.find({box: box._id}).populate('state')
+								return MemberBoxes.find({box: box._id})
 									.then(memberBoxes => ({
 										name: box.name,
 										totalSmall: memberBoxes.filter(bm => bm.size === 'small').length,
 										totalMedium: memberBoxes.filter(bm => bm.size === 'medium').length,
 										totalLarge: memberBoxes.filter(bm => bm.size === 'large').length,
-										collectedSmall: memberBoxes.filter(bm => bm.size === 'small' && bm.state === collectedStateId).length,
-										collectedMedium: memberBoxes.filter(bm => bm.size === 'medium' && bm.state === collectedStateId).length,
-										collectedLarge: memberBoxes.filter(bm => bm.size === 'large' && bm.state === collectedStateId).length,
+										collectedSmall: memberBoxes.filter(bm => bm.size === 'small' && bm.state.equals(collectedStateId)).length,
+										collectedMedium: memberBoxes.filter(bm => bm.size === 'medium' && bm.state.equals(collectedStateId)).length,
+										collectedLarge: memberBoxes.filter(bm => bm.size === 'large' && bm.state.equals(collectedStateId)).length,
 									}));
 							})
 					)
