@@ -21,6 +21,7 @@
     "connect-mongodb-session": "^1.3.0",
     "cookie-parser": "^1.4.0",
     "csurf": "^1.9.0",
+    "csv-parser": "^2.3.0",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.13.3",
     "express-flash": "0.0.2",
@@ -49,6 +50,7 @@
     "webhook-dev": "nodemon webhook | npx bunyan",
     "first-time": "node tools/first-time/first-time",
     "new-user": "node tools/new-user/new-user",
+    "load-users": "node tools/new-user/load-users",
     "import": "node tools/import/import",
     "watch-css": "catw -c 'lessc -' 'static/less/*.less' -o static/css/style.css -v",
     "watch": "npm run watch-css"
