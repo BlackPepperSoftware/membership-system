@@ -212,15 +212,15 @@ function newMemberBoxes(box) {
 	return Members.find()
 		.then(members => Promise.all(
 			members
-				.map(member => getMemberSubscriberPermission(member)
-					.then(subscriberPermission => {
-						if (subscriberPermission) {
+				.map(member => getSubscriptionSize(member)
+					.then(size => {
+						if (size) {
 							console.log(box);
 							return {
 								box: box._id,
 								member: member,
 								state: box.defaultState,
-								size: subscriberPermission
+								size: size
 							};
 						}
 					})
@@ -244,7 +244,7 @@ function saveMemberBoxes(memberBoxes) {
  * @param {object} member
  * @returns {Promise<string|undefined>}
  */
-function getMemberSubscriberPermission(member) {
+function getSubscriptionSize(member) {
 	const subscriberPermSuffix = 'Subscriber';
 
 	return Promise.all(member.permissions.map(p => Permissions.findById(p.permission)))
