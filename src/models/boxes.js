@@ -29,7 +29,7 @@ module.exports = {
 			ref: 'States',
 			required: true
 		}
-	} )
+	}, { timestamps: true } )
 };
 
 module.exports.model = mongoose.model( module.exports.name, module.exports.schema );

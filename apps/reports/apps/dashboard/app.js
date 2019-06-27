@@ -32,31 +32,18 @@ app.use( function( req, res, next ) {
 } );
 
 app.get( '/', auth.isSuperAdmin, function( req, res ) {
-	Boxes.find()
-		.then(boxes => {
-			return States.findOne({ slug: 'collected' })
-				.then(state => {
-					const collectedStateId = state._id;
-
-					return Promise.all(
-						boxes
-							.map(box => {
-								return MemberBoxes.find({box: box._id})
-									.then(memberBoxes => ({
-										name: box.name,
-										totalSmall: memberBoxes.filter(bm => bm.size === 'small').length,
-										totalMedium: memberBoxes.filter(bm => bm.size === 'medium').length,
-										totalLarge: memberBoxes.filter(bm => bm.size === 'large').length,
-										collectedSmall: memberBoxes.filter(bm => bm.size === 'small' && bm.state.equals(collectedStateId)).length,
-										collectedMedium: memberBoxes.filter(bm => bm.size === 'medium' && bm.state.equals(collectedStateId)).length,
-										collectedLarge: memberBoxes.filter(bm => bm.size === 'large' && bm.state.equals(collectedStateId)).length,
-									}));
-							})
-					)
-				});
-		})
+	Boxes.find().sort({ createdAt: -1 }).limit(1)
+		.then(newBoxResults)
 		.then((results) => {
 			res.render( 'index', { boxes: results } );
+		});
+} );
+
+app.get( '/history', auth.isSuperAdmin, function( req, res ) {
+	Boxes.find().sort({ createdAt: -1 }).skip(1)
+		.then(newBoxResults)
+		.then((results) => {
+			res.render( 'history', { boxes: results } );
 		});
 } );
 
@@ -85,6 +72,34 @@ app.get( '/data.json', auth.isSuperAdmin, function( req, res ) {
 		} );
 	} );
 } );
+
+/**
+ *
+ * @param {object[]} boxes
+ * @returns {Promise<object[]>}
+ */
+function newBoxResults(boxes) {
+	return States.findOne({ slug: 'collected' })
+		.then(state => {
+			const collectedStateId = state._id;
+
+			return Promise.all(
+				boxes
+					.map(box => {
+						return MemberBoxes.find({box: box._id})
+							.then(memberBoxes => ({
+								name: box.name,
+								totalSmall: memberBoxes.filter(bm => bm.size === 'small').length,
+								totalMedium: memberBoxes.filter(bm => bm.size === 'medium').length,
+								totalLarge: memberBoxes.filter(bm => bm.size === 'large').length,
+								collectedSmall: memberBoxes.filter(bm => bm.size === 'small' && bm.state.equals(collectedStateId)).length,
+								collectedMedium: memberBoxes.filter(bm => bm.size === 'medium' && bm.state.equals(collectedStateId)).length,
+								collectedLarge: memberBoxes.filter(bm => bm.size === 'large' && bm.state.equals(collectedStateId)).length,
+							}));
+					})
+			)
+		});
+}
 
 module.exports = function( config ) {
 	app_config = config;

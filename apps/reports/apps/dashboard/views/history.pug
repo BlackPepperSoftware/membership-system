@@ -11,8 +11,6 @@ block contents
 	if boxes.length > 0
 		each box, p in boxes
 			+box-panel(box)
-		p
-			a(href="/reports/dashboard/history") Previous weeks
 	else
 		hr
 		+messageBlock( 'info', 'There are no boxes to display.' )
