@@ -9,6 +9,11 @@ module.exports = {
 			default: function() { return new mongoose.Types.ObjectId(); },
 			required: true
 		},
+		box: {
+			type: ObjectId,
+			ref: 'Boxes',
+			required: true
+		},
 		size: {
 			type: String,
 			required: true

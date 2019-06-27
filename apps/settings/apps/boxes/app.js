@@ -176,9 +176,8 @@ app.post( '/:id/edit', auth.isSuperAdmin, function( req, res ) {
  */
 function doCreateBox(name) {
 	return newBox(name)
-		.then(box => saveBox(box)
-			.then(() => newMemberBoxes(box))
-		)
+		.then(box => saveBox(box))
+		.then(newMemberBoxes)
 		.then(saveMemberBoxes);
 }
 
@@ -216,7 +215,9 @@ function newMemberBoxes(box) {
 				.map(member => getMemberSubscriberPermission(member)
 					.then(subscriberPermission => {
 						if (subscriberPermission) {
+							console.log(box);
 							return {
+								box: box._id,
 								member: member,
 								state: box.defaultState,
 								size: subscriberPermission
