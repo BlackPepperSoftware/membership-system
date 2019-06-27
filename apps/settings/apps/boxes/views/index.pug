@@ -6,7 +6,7 @@ block prepend title
 	- activeApp = 'settings'
 
 block contents
-	p: a( href="/settings/boxes/create" ).btn.btn-default
+	p: a( href="/settings/boxes_/create" ).btn.btn-default
 		span.glyphicon.glyphicon-plus
 		|  Create Boxes
 	if boxes.length > 0
@@ -20,7 +20,7 @@ block contents
 					each box, p in boxes
 						tr
 							td #{ box.name }
-							td: a( href="/settings/boxes/" + box.id + "/edit" )
+							td: a( href="/settings/boxes_/" + box.id + "/edit" )
 								span.glyphicon.glyphicon-pencil
 	else
 		hr
