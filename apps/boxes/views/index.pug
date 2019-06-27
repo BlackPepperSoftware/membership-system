@@ -16,5 +16,10 @@ block contents
 								.label.pull-right( style="padding-top: 0.3em;" class=( box.status.colour ? "label-" + box.status.colour : "label-default" ) ) #{ box.status.text }
 						.panel-body
 							| #{ box.size }
+						.panel-footer
+							if box.status.slug != 'collected'
+								form( action="/boxes/" + box._id + "/collect", method="post" ).form-inline
+									+csrf
+									+form_button( 'Collect', 'primary' )
 	else
 		+messageBlock( 'info', 'No boxes available.' )

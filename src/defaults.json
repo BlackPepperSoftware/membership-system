@@ -151,6 +151,8 @@
 	"flash-item-duplicate": "User already has this Item",
 	"flash-item-action-duplicate": "Item already has this action",
 
+	"flash-box-collected": "Box marked as collected",
+
 	"flash-action-404": "Action not found",
 	"flash-action-created": "Action created",
 	"flash-action-updated": "Action updated",
