@@ -245,10 +245,14 @@ function saveMemberBoxes(memberBoxes) {
  * @returns {Promise<string|undefined>}
  */
 function getMemberSubscriberPermission(member) {
+	const subscriberPermSuffix = 'Subscriber';
+
 	return Promise.all(member.permissions.map(p => Permissions.findById(p.permission)))
 		.then(permissions => permissions
 			.map(permission => permission.slug)
-			.find(slug => slug.indexOf('Subscriber') > -1)
+			.filter(slug => slug.indexOf(subscriberPermSuffix) > -1)
+			.map(slug => slug.substring(0, slug.indexOf(subscriberPermSuffix)))
+			.find(perm => !!perm)
 		);
 }
 
