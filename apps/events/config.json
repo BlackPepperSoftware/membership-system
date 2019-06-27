@@ -1,9 +1,7 @@
 {
 	"title": "Events",
 	"path": "events",
-	"permissions": [
-		"superadmin", "admin", "member"
-	],
+	"permissions": [],
 	"menu": "main",
 	"priority": 2
 }

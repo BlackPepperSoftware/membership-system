@@ -1,8 +1,6 @@
 {
 	"title": "Items",
 	"path": "items",
-	"permissions": [
-		"superadmin"
-	],
+	"permissions": [],
 	"priority": 1
 }
