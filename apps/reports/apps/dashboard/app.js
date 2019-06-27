@@ -10,6 +10,9 @@ var auth = require( __js + '/authentication' ),
 	discourse = require( __js + '/discourse' ),
 	db = require( __js + '/database' ),
 	Permissions = db.Permissions,
+	Boxes = db.Boxes,
+	MemberBoxes = db.MemberBoxes,
+	States = db.States,
 	Members = db.Members;
 
 var config = require( __config + '/config.json' );
@@ -29,7 +32,32 @@ app.use( function( req, res, next ) {
 } );
 
 app.get( '/', auth.isSuperAdmin, function( req, res ) {
-	res.render( 'index' );
+	Boxes.find()
+		.then(boxes => {
+			return States.findOne({ slug: 'collected' })
+				.then(state => {
+					const collectedStateId = state._id;
+
+					return Promise.all(
+						boxes
+							.map(box => {
+								return MemberBoxes.find({box: box._id})
+									.then(memberBoxes => ({
+										name: box.name,
+										totalSmall: memberBoxes.filter(bm => bm.size === 'small').length,
+										totalMedium: memberBoxes.filter(bm => bm.size === 'medium').length,
+										totalLarge: memberBoxes.filter(bm => bm.size === 'large').length,
+										collectedSmall: memberBoxes.filter(bm => bm.size === 'small' && bm.state.equals(collectedStateId)).length,
+										collectedMedium: memberBoxes.filter(bm => bm.size === 'medium' && bm.state.equals(collectedStateId)).length,
+										collectedLarge: memberBoxes.filter(bm => bm.size === 'large' && bm.state.equals(collectedStateId)).length,
+									}));
+							})
+					)
+				});
+		})
+		.then((results) => {
+			res.render( 'index', { boxes: results } );
+		});
 } );
 
 app.get( '/data.json', auth.isSuperAdmin, function( req, res ) {

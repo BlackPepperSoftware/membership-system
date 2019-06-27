@@ -6,5 +6,30 @@ block prepend title
 	- activeApp = 'reports'
 
 block contents
-	.panel.panel-default
-		.panel-body This dashboard shows how many subscriptions are active for each size box.
+	if boxes.length > 0
+		each box, p in boxes
+			.panel
+				.panel-heading
+					h2 #{box.name}
+				.panel-body
+					table.table.table-striped.table-condensed
+						thead
+							tr
+								th
+								th Small
+								th Medium
+								th Large
+						tbody
+							tr.default
+								th Total
+								td #{box.totalSmall}
+								td #{box.totalMedium}
+								td #{box.totalLarge}
+							tr.success
+								th Collected
+								td #{box.collectedSmall}
+								td #{box.collectedMedium}
+								td #{box.collectedLarge}
+	else
+		hr
+		+messageBlock( 'info', 'There are no boxes to display.' )
