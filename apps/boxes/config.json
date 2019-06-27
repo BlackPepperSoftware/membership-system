@@ -1,0 +1,9 @@
+{
+	"title": "Boxes",
+	"path": "boxes",
+	"permissions": [
+		"smallSubscriber", "mediumSubscriber", "largeSubscriber"
+	],
+	"menu": "main",
+	"priority": 3
+}

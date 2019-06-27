@@ -32,8 +32,8 @@ permissionData
 	});
 
 const stateData = [
-	{ slug: 'ready', text: 'Ready', colour: 'Grey', pastTense: 'was ready', presentTense: 'is ready' },
-	{ slug: 'collected', text: 'Collected', colour: 'Green', pastTense: 'was collected', presentTense: 'is being collected' },
+	{ slug: 'ready', text: 'Ready', colour: 'default', pastTense: 'was ready', presentTense: 'is ready' },
+	{ slug: 'collected', text: 'Collected', colour: 'success', pastTense: 'was collected', presentTense: 'is being collected' },
 ];
 
 stateData

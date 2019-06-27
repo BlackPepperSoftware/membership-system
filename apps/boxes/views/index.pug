@@ -1,0 +1,20 @@
+extends /src/views/base.pug
+
+block prepend title
+	- title = app.title
+	- heading = title
+
+block contents
+	if boxes.length > 0
+		.row
+
+			for box in boxes
+				.col-md-3
+					.panel.panel-default
+						.panel-heading
+							strong=box.name
+								.label.pull-right( style="padding-top: 0.3em;" class=( box.status.colour ? "label-" + box.status.colour : "label-default" ) ) #{ box.status.text }
+						.panel-body
+							| #{ box.size }
+	else
+		+messageBlock( 'info', 'No boxes available.' )
